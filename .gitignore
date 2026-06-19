@@ -17,9 +17,7 @@ bower_components
 
 *.sublime-*
 dist/
-/test/yarn.lock
 package-lock.json
-.yarnrc
 
 .idea
 .DS_Store

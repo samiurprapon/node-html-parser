@@ -116,7 +116,7 @@ describe('HTML Parser', function () {
 			root.firstChild.should.eql(div);
 		});
 
-		// yarn test:target -g 'should parse HTML comments in *'
+		// pnpm run test:target -g 'should parse HTML comments in *'
 
 		it('should parse HTML comments in insertAdjacentHTML', function () {
 			const root = parseHTML('<div></div>', { comment: true });
