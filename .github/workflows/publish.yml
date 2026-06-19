@@ -13,30 +13,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js to publish to npmjs.org
         uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: "20.x"
           registry-url: "https://registry.npmjs.org"
+          cache: 'pnpm'
 
       - name: Install Packages
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: yarn build
+        run: pnpm build
         env:
           CI: true
 
       - name: Test
-        run: yarn run test:ci
+        run: pnpm run test:ci
         env:
           CI: true
 
       - name: Generate Release Body
-        run: npx extract-changelog-release > RELEASE_BODY.md
+        run: pnpm exec extract-changelog-release > RELEASE_BODY.md
 
       - name: Publish to NPM
-        run: yarn publish --non-interactive
+        run: pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
