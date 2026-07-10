@@ -12,12 +12,16 @@
 		"strictNullChecks": false,
 		"noImplicitThis": true,
 		"rootDir": "./src/",
-		"rootDirs": [ ],
+		"rootDirs": [],
 		"allowJs": false,
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
 		"alwaysStrict": true,
-		"baseUrl": "",
+		"paths": {
+			"*": [
+				"./*"
+			]
+		},
 		"declaration": true,
 		"inlineSourceMap": false,
 		"esModuleInterop": true,
@@ -40,7 +44,6 @@
 		"noEmitHelpers": false,
 		"noEmitOnError": false,
 		"noImplicitReturns": false,
-		"noImplicitUseStrict": false,
 		"maxNodeModuleJsDepth": 0,
 		"noLib": false,
 		"outDir": "./dist",
@@ -48,15 +51,13 @@
 		"noResolve": false,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"paths": { },
 		"preserveConstEnums": false,
 		"pretty": true,
 		"removeComments": false,
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
 		"stripInternal": false,
-		"suppressExcessPropertyErrors": false,
 		"traceResolution": false,
-		"typeRoots": [ ]
+		"typeRoots": []
 	}
 }

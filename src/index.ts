@@ -1,21 +1,13 @@
 import CommentNode from './nodes/comment';
-import HTMLElement, { Options } from './nodes/html';
+import HTMLElement, { type Options } from './nodes/html';
 import Node from './nodes/node';
 import TextNode from './nodes/text';
 import NodeType from './nodes/type';
 import baseParse from './parse';
 import valid from './valid';
 
-export { Options } from './nodes/html';
-export {
-	parse,
-	HTMLElement,
-	CommentNode,
-	valid,
-	Node,
-	TextNode,
-	NodeType
-};
+export { type Options } from './nodes/html';
+export { CommentNode, HTMLElement, Node, NodeType, parse, TextNode, valid };
 
 export default function parse(data: string, options = {} as Partial<Options>) {
 	return baseParse(data, options);

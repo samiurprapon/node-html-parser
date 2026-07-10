@@ -1,5 +1,6 @@
 import { is, selectAll, selectOne } from 'css-select';
-import entities from 'entities';
+import { decodeHTML } from 'entities';
+
 import arr_back from '../back';
 import Matcher from '../matcher';
 import VoidTag from '../void-tag';
@@ -33,7 +34,7 @@ type IRawTagName =
 	| 'h6';
 
 function decode(val: string) {
-	return entities.decodeHTML(val);
+	return decodeHTML(val);
 }
 
 export interface KeyAttributes {
@@ -69,7 +70,9 @@ function addToKBlockElement(...args: string[][]) {
 		}
 	};
 
-	for (const arg of args) addToSet(arg);
+	for (const arg of args) {
+		addToSet(arg);
+	}
 }
 
 addToKBlockElement(Htags, Dtags, Ftags, tableTags, htmlTags);
@@ -104,8 +107,11 @@ class DOMTokenList {
 	}
 	public toggle(c: string) {
 		this._validate(c);
-		if (this._set.has(c)) this._set.delete(c);
-		else this._set.add(c);
+		if (this._set.has(c)) {
+			this._set.delete(c);
+		} else {
+			this._set.add(c);
+		}
 		this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
 	}
 	public contains(c: string): boolean {
@@ -263,9 +269,7 @@ export default class HTMLElement extends Node {
 		if (/^br$/i.test(this.rawTagName)) {
 			return '\n';
 		}
-		return this.childNodes.reduce((pre, cur) => {
-			return (pre += cur.rawText);
-		}, '');
+		return this.childNodes.reduce((pre, cur) => pre + cur.rawText, '');
 	}
 	public get textContent() {
 		return decode(this.rawText);
@@ -372,7 +376,8 @@ export default class HTMLElement extends Node {
 			.map((node) => {
 				if (node instanceof Node) {
 					return [node];
-				} else if (typeof node == 'string') {
+				}
+				if (typeof node == 'string') {
 					const r = parse(node, this._parseOptions);
 					return r.childNodes.length ? r.childNodes : [new TextNode(node, this)];
 				}
@@ -540,7 +545,9 @@ export default class HTMLElement extends Node {
 
 			if (child.nodeType === NodeType.ELEMENT_NODE) {
 				// https://developer.mozilla.org/en-US/docs/Web/API/Element/getElementsByTagName#syntax
-				if (tagName === '*' || child.tagName === upperCasedTagName) re.push(child);
+				if (tagName === '*' || child.tagName === upperCasedTagName) {
+					re.push(child);
+				}
 
 				// if children are existing push the current status to the stack and keep searching for elements in the level below
 				if (child.childNodes.length > 0) {
@@ -605,27 +612,9 @@ export default class HTMLElement extends Node {
 	 * @returns {HTMLElement | null} the element with the given id or null if not found
 	 */
 	public closest(selector: string): HTMLElement | null {
-		type Predicate = (node: Node) => node is HTMLElement;
-
 		const mapChild = new Map<Node, Node>();
 		let el = this as Node;
 		let old = null as Node;
-		function findOne(test: Predicate, elems: Node[]) {
-			let elem = null as HTMLElement | null;
-
-			for (let i = 0, l = elems.length; i < l && !elem; i++) {
-				const el = elems[i];
-				if (test(el)) {
-					elem = el;
-				} else {
-					const child = mapChild.get(el);
-					if (child) {
-						elem = findOne(test, [child]);
-					}
-				}
-			}
-			return elem;
-		}
 		while (el) {
 			mapChild.set(el, old);
 			old = el;
@@ -639,14 +628,10 @@ export default class HTMLElement extends Node {
 					...Matcher,
 					getChildren(node: Node) {
 						const child = mapChild.get(node);
-						return child && [child];
+						return child ? [child] : [];
 					},
 					getSiblings(node: Node) {
 						return [node];
-					},
-					findOne,
-					findAll(): Node[] {
-						return [];
 					},
 				},
 			});
@@ -711,7 +696,9 @@ export default class HTMLElement extends Node {
 			while ((match = re.exec(this.rawAttrs))) {
 				const key = match[1];
 				let val = match[2] || null;
-				if (val && (val[0] === `'` || val[0] === `"`)) val = val.slice(1, val.length - 1);
+				if (val && (val[0] === `'` || val[0] === `"`)) {
+					val = val.slice(1, val.length - 1);
+				}
 				attrs[key] = attrs[key] || val;
 			}
 		}
@@ -730,7 +717,9 @@ export default class HTMLElement extends Node {
 		this.rawAttrs = Object.keys(attrs)
 			.map((name) => {
 				const val = this.quoteAttribute(attrs[name]);
-				if (val === 'null' || val === '""') return name;
+				if (val === 'null' || val === '""') {
+					return name;
+				}
 				return `${name}=${val}`;
 			})
 			.join(' ');
@@ -779,7 +768,9 @@ export default class HTMLElement extends Node {
 		this.rawAttrs = Object.keys(attrs)
 			.map((name) => {
 				const val = this.quoteAttribute(attrs[name]);
-				if (val === 'null' || val === '""') return name;
+				if (val === 'null' || val === '""') {
+					return name;
+				}
 				return `${name}=${val}`;
 			})
 			.join(' ');
@@ -807,7 +798,9 @@ export default class HTMLElement extends Node {
 		this.rawAttrs = Object.keys(attributes)
 			.map((name) => {
 				const val = attributes[name];
-				if (val === 'null' || val === '""') return name;
+				if (val === 'null' || val === '""') {
+					return name;
+				}
 				return `${name}=${this.quoteAttribute(String(val))}`;
 			})
 			.join(' ');
@@ -872,7 +865,9 @@ export default class HTMLElement extends Node {
 			let i = 0;
 			while (i < children.length) {
 				const child = children[i++];
-				if (this === child) return children[i] || null;
+				if (this === child) {
+					return children[i] || null;
+				}
 			}
 			return null;
 		}
@@ -903,7 +898,9 @@ export default class HTMLElement extends Node {
 			let i = children.length;
 			while (i > 0) {
 				const child = children[--i];
-				if (this === child) return children[i - 1] || null;
+				if (this === child) {
+					return children[i - 1] || null;
+				}
 			}
 			return null;
 		}
@@ -985,7 +982,8 @@ export default class HTMLElement extends Node {
 
 // #xB7 | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x203F-#x2040] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 // https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name
-const kMarkupPattern = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][-.:0-9_a-zA-Z@\xB7\xC0-\xD6\xD8-\xF6\u00F8-\u03A1\u03A3-\u03D9\u03DB-\u03EF\u03F7-\u03FF\u0400-\u04FF\u0500-\u052F\u1D00-\u1D2B\u1D6B-\u1D77\u1D79-\u1D9A\u1E00-\u1E9B\u1F00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2126\u212A-\u212B\u2132\u214E\u2160-\u2188\u2C60-\u2C7F\uA722-\uA787\uA78B-\uA78E\uA790-\uA7AD\uA7B0-\uA7B7\uA7F7-\uA7FF\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64-\uAB65\uFB00-\uFB06\uFB13-\uFB17\uFF21-\uFF3A\uFF41-\uFF5A\x37F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]*)((?:\s+[^>]*?(?:(?:'[^']*')|(?:"[^"]*"))?)*)\s*(\/?)>/gu;
+const kMarkupPattern =
+	/<!--[\s\S]*?-->|<(\/?)([a-zA-Z][-.:0-9_a-zA-Z@\xB7\xC0-\xD6\xD8-\xF6\u00F8-\u03A1\u03A3-\u03D9\u03DB-\u03EF\u03F7-\u03FF\u0400-\u04FF\u0500-\u052F\u1D00-\u1D2B\u1D6B-\u1D77\u1D79-\u1D9A\u1E00-\u1E9B\u1F00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2126\u212A-\u212B\u2132\u214E\u2160-\u2188\u2C60-\u2C7F\uA722-\uA787\uA78B-\uA78E\uA790-\uA7AD\uA7B0-\uA7B7\uA7F7-\uA7FF\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64-\uAB65\uFB00-\uFB06\uFB13-\uFB17\uFF21-\uFF3A\uFF41-\uFF5A\x37F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]*)((?:\s+[^>]*?(?:(?:'[^']*')|(?:"[^"]*"))?)*)\s*(\/?)>/gu;
 // const kMarkupPattern = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][-.:0-9_a-zA-Z]*)((?:\s+[^>]*?(?:(?:'[^']*')|(?:"[^"]*"))?)*)\s*(\/?)>/g;
 const kAttributePattern = /(?:^|\s)(id|class)\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+)/gi;
 const kElementsClosedByOpening = {
@@ -1123,7 +1121,9 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 
 		// https://github.com/taoqf/node-html-parser/issues/38
 		// Skip frameflag node
-		if (tagName === frameflag) continue;
+		if (tagName === frameflag) {
+			continue;
+		}
 
 		// Handle comments
 		if (matchText[1] === '!') {
@@ -1137,13 +1137,15 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 
 		/* -- Handle tag matching -- */
 		// Fix tag casing if necessary
-		if (lowerCaseTagName) tagName = tagName.toLowerCase();
+		if (lowerCaseTagName) {
+			tagName = tagName.toLowerCase();
+		}
 
 		// Handle opening tags (ie. <this> not </that>)
 		if (!leadingSlash) {
 			/* Populate attributes */
 			const attrs = {} as Record<string, string>;
-			for (let attMatch; (attMatch = kAttributePattern.exec(attributes));) {
+			for (let attMatch; (attMatch = kAttributePattern.exec(attributes)); ) {
 				const { 1: key, 2: val } = attMatch;
 				const isQuoted = val[0] === `'` || val[0] === `"`;
 				attrs[key.toLowerCase()] = isQuoted ? val.slice(1, val.length - 1) : val;
@@ -1204,64 +1206,64 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 		// Handle closing tags or self-closed elements (ie </tag> or <br>)
 		if (leadingSlash || closingSlash || voidTag.isVoidElement(tagName)) {
 			while (true) {
-				if (noNestedTagIndex != null && (tagName === 'a' || tagName === 'A')) noNestedTagIndex = undefined;
+				if (noNestedTagIndex != null && (tagName === 'a' || tagName === 'A')) {
+					noNestedTagIndex = undefined;
+				}
 				if (currentParent.rawTagName === tagName) {
 					// Update range end for closed tag
 					(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
 					stack.pop();
 					currentParent = arr_back(stack);
 					break;
-				} else {
-					const parentTagName = currentParent.tagName as 'LI' | 'A' | 'B' | 'I' | 'P' | 'TD' | 'TH';
-					// Trying to close current tag, and move on
-					if (kElementsClosedByClosing[parentTagName]) {
-						if (kElementsClosedByClosing[parentTagName][tagName]) {
+				}
+				const parentTagName = currentParent.tagName as 'LI' | 'A' | 'B' | 'I' | 'P' | 'TD' | 'TH';
+				// Trying to close current tag, and move on
+				if (kElementsClosedByClosing[parentTagName]) {
+					if (kElementsClosedByClosing[parentTagName][tagName]) {
+						stack.pop();
+						currentParent = arr_back(stack);
+						continue;
+					}
+				}
+				const openTag = currentParent.rawTagName ? currentParent.rawTagName.toLowerCase() : '';
+				if (kElementsClosedByClosingExcept[openTag]) {
+					const closingTag = tagName.toLowerCase();
+					if (stack.length > 1) {
+						const possibleContainer = stack[stack.length - 2];
+						if (
+							possibleContainer &&
+							possibleContainer.rawTagName &&
+							possibleContainer.rawTagName.toLowerCase() === closingTag &&
+							!kElementsClosedByClosingExcept[openTag][closingTag]
+						) {
+							// Update range end for closed tag
+							(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
 							stack.pop();
 							currentParent = arr_back(stack);
 							continue;
 						}
 					}
-					const openTag =
-						currentParent.rawTagName ?
-							currentParent.rawTagName.toLowerCase() :
-							'';
-					if (kElementsClosedByClosingExcept[openTag]) {
-						const closingTag = tagName.toLowerCase();
-						if (stack.length > 1) {
-							const possibleContainer = stack[stack.length - 2];
-							if (
-								possibleContainer &&
-								possibleContainer.rawTagName &&
-								possibleContainer.rawTagName.toLowerCase() === closingTag &&
-								!kElementsClosedByClosingExcept[openTag][closingTag]
-							) {
-								// Update range end for closed tag
-								(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
-								stack.pop();
-								currentParent = arr_back(stack);
-								continue;
-							}
+				}
+				if (options.closeAllByClosing === true) {
+					// If tag was opened, close all nested tags
+					let i;
+					for (i = stack.length - 2; i >= 0; i--) {
+						if (stack[i].rawTagName === tagName) {
+							break;
 						}
 					}
-          if (options.closeAllByClosing === true) {
-            // If tag was opened, close all nested tags
-            let i;
-            for (i = stack.length - 2; i >= 0; i--) {
-              if (stack[i].rawTagName === tagName) break;
-            }
-            if (i >= 0) {
-              while (stack.length > i) {
-								// Update range end for closed tag
-								(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
-								stack.pop();
-								currentParent = arr_back(stack);
-              }
-              continue;
-            }
-          }
-					// Use aggressive strategy to handle unmatching markups.
-					break;
+					if (i >= 0) {
+						while (stack.length > i) {
+							// Update range end for closed tag
+							(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
+							stack.pop();
+							currentParent = arr_back(stack);
+						}
+						continue;
+					}
 				}
+				// Use aggressive strategy to handle unmatching markups.
+				break;
 			}
 		}
 	}
@@ -1291,16 +1293,13 @@ export function parse(data: string, options = {} as Partial<Options>) {
 					});
 					stack.pop();
 				}
-			} else {
+			} else if (options.parseNoneClosedTags !== true) {
 				// Single error  <div> <h3> </div> handle: Just removes <h3>
 				// Why remove? this is already a HtmlElement and the missing <H3> is already added in this case. see issue 152 for more info
-				// eslint-disable-next-line no-lonely-if
-				if (options.parseNoneClosedTags !== true) {
-					oneBefore.removeChild(last);
-					last.childNodes.forEach((child) => {
-						oneBefore.appendChild(child);
-					});
-				}
+				oneBefore.removeChild(last);
+				last.childNodes.forEach((child) => {
+					oneBefore.appendChild(child);
+				});
 			}
 		} else {
 			// If it's final element just skip.

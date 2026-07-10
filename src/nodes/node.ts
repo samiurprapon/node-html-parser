@@ -1,6 +1,7 @@
 import { decodeHTML, encode } from 'entities';
-import NodeType from './type';
+
 import HTMLElement from './html';
+import NodeType from './type';
 
 /**
  * Node Class as base class for TextNode and HTMLElement.
@@ -23,7 +24,7 @@ export default abstract class Node {
 			enumerable: false,
 			writable: true,
 			configurable: true,
-			value: range ?? [-1, -1]
+			value: range ?? [-1, -1],
 		});
 	}
 	/**
