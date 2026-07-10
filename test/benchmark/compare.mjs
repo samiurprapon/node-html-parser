@@ -9,10 +9,8 @@ import htmlParser2 from './compare-htmlparser2.mjs';
 import nhpLast from './compare-nhp-last.mjs';
 import nhp from './compare-node-html-parser.mjs';
 import parse5 from './compare-parse5.mjs';
-// import saxes from './compare-saxes.mjs';	// errors
 
 async function main() {
-	// await saxes();
 	await htmlparser();
 	await htmlJsParser();
 	await htmlDomParser();

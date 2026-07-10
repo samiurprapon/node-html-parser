@@ -5,7 +5,7 @@ describe(`Module Import`, function () {
   this.timeout(20000);
 
   it(`ESM project can import and use named exports`, () => {
-    execSync('node --loader ts-node/esm index.ts', {
+    execSync('node index.ts', {
       cwd: path.resolve(__dirname, '../assets/packages/esm'),
       stdio: "pipe"
     }).toString().should.eql('parse succeeded\n')

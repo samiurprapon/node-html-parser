@@ -66,8 +66,6 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.0",
 		"@types/node": "latest",
-		"blanket": "latest",
-		"boolbase": "^1.0.0",
 		"cheerio": "^1.2.0",
 		"cross-env": "^7.0.3",
 		"high5": "^1.0.0",
@@ -80,29 +78,13 @@
 		"htmlparser2": "^8.0.1",
 		"mocha": "^11.7.6",
 		"mocha-each": "^2.0.1",
-		"neutron-html5parser": "^0.2.0",
-		"np": "latest",
 		"parse5": "^8.0.1",
 		"rimraf": "^3.0.2",
-		"saxes": "^6.0.0",
 		"should": "latest",
-		"spec": "latest",
 		"standard-version": "^9.5.0",
-		"travis-cov": "latest",
-		"ts-node": "^10.9.1",
+		"ts-node": "^10.9.2",
 		"tsdown": "^0.22.3",
 		"typescript": "5.4.5"
-	},
-	"config": {
-		"blanket": {
-			"pattern": "./dist/index.js",
-			"data-cover-never": [
-				"node_modules"
-			]
-		},
-		"travis-cov": {
-			"threshold": 70
-		}
 	},
 	"directories": {
 		"test": "test"
