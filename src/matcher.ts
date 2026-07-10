@@ -22,11 +22,14 @@ interface Adapter {
 }
 
 function isTag(node: Node): node is HTMLElement {
-	return node && node.nodeType === NodeType.ELEMENT_NODE;
+	// Comment nodes are queryable via the `!--` tag name, so treat them as tags
+	// for traversal (css-select's internal findOne/findAll skip non-tags).
+	return node && (node.nodeType === NodeType.ELEMENT_NODE || node.nodeType === NodeType.COMMENT_NODE);
 }
 
 function getAttributeValue(elem: HTMLElement, name: string) {
-	return isTag(elem) ? elem.getAttribute(name) : undefined;
+	// Only elements expose attributes; comments have no getAttribute.
+	return elem && elem.nodeType === NodeType.ELEMENT_NODE ? elem.getAttribute(name) : undefined;
 }
 
 function getName(elem: HTMLElement) {
@@ -118,10 +121,16 @@ function findAll(test: (elem: HTMLElement) => boolean, nodes: Node[]): HTMLEleme
 
 	for (let i = 0, j = nodes.length; i < j; i++) {
 		const node = nodes[i];
-		if (!isTag(node)) continue;
-		if (test(node)) result.push(node);
+		if (!isTag(node)) {
+			continue;
+		}
+		if (test(node)) {
+			result.push(node);
+		}
 		const childs = getChildren(node);
-		if (childs) result = result.concat(findAll(test, childs));
+		if (childs) {
+			result = result.concat(findAll(test, childs));
+		}
 	}
 
 	return result;
@@ -139,7 +148,7 @@ const matcher: Adapter = {
 	getSiblings,
 	hasAttrib,
 	findOne,
-	findAll
+	findAll,
 };
 
 export default matcher;

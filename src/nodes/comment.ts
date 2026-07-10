@@ -6,7 +6,12 @@ export default class CommentNode extends Node {
 	public clone(): CommentNode {
 		return new CommentNode(this.rawText, null, undefined, this.rawTagName);
 	}
-	public constructor(public rawText: string, parentNode = null as HTMLElement | null, range?: [number, number], public rawTagName = '!--') {
+	public constructor(
+		public rawText: string,
+		parentNode = null as HTMLElement | null,
+		range?: [number, number],
+		public rawTagName = '!--'
+	) {
 		super(parentNode, range);
 	}
 

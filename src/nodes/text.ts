@@ -1,4 +1,5 @@
 import { decodeHTML } from 'entities';
+
 import HTMLElement from './html';
 import Node from './node';
 import NodeType from './type';
@@ -44,7 +45,9 @@ export default class TextNode extends Node {
 	 * Returns raw text with all whitespace trimmed except single leading/trailing non-breaking space
 	 */
 	public get trimmedRawText() {
-		if (this._trimmedRawText !== undefined) return this._trimmedRawText;
+		if (this._trimmedRawText !== undefined) {
+			return this._trimmedRawText;
+		}
 		this._trimmedRawText = trimText(this.rawText);
 		return this._trimmedRawText;
 	}
@@ -53,7 +56,9 @@ export default class TextNode extends Node {
 	 * Returns text with all whitespace trimmed except single leading/trailing non-breaking space
 	 */
 	public get trimmedText() {
-		if (this._trimmedText !== undefined) return this._trimmedText;
+		if (this._trimmedText !== undefined) {
+			return this._trimmedText;
+		}
 		this._trimmedText = trimText(this.text);
 		return this._trimmedText;
 	}
@@ -98,15 +103,22 @@ function trimText(text: string): string {
 			}
 		}
 
-		if (startPos === undefined) i++;
-		else i--;
+		if (startPos === undefined) {
+			i++;
+		} else {
+			i--;
+		}
 	}
 
-	if (startPos === undefined) startPos = 0;
-	if (endPos === undefined) endPos = text.length - 1;
+	if (startPos === undefined) {
+		startPos = 0;
+	}
+	if (endPos === undefined) {
+		endPos = text.length - 1;
+	}
 
 	const hasLeadingSpace = startPos > 0 && /[^\S\r\n]/.test(text[startPos - 1]);
-	const hasTrailingSpace = endPos < (text.length - 1) && /[^\S\r\n]/.test(text[endPos + 1]);
+	const hasTrailingSpace = endPos < text.length - 1 && /[^\S\r\n]/.test(text[endPos + 1]);
 
 	return (hasLeadingSpace ? ' ' : '') + text.slice(startPos, endPos + 1) + (hasTrailingSpace ? ' ' : '');
 }

@@ -7,15 +7,7 @@ import baseParse from './parse';
 import valid from './valid';
 
 export type { Options } from './nodes/html';
-export {
-	parse,
-	HTMLElement,
-	CommentNode,
-	valid,
-	Node,
-	TextNode,
-	NodeType
-};
+export { CommentNode, HTMLElement, Node, NodeType, parse, TextNode, valid };
 
 export default function parse(data: string, options = {} as Partial<Options>) {
 	return baseParse(data, options);

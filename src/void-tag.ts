@@ -9,14 +9,29 @@ export default class VoidTag {
 				return set.add(tag.toLowerCase()).add(tag.toUpperCase()).add(tag);
 			}, new Set<string>());
 		} else {
-			this.voidTags = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'].reduce((set, tag) => {
+			this.voidTags = [
+				'area',
+				'base',
+				'br',
+				'col',
+				'embed',
+				'hr',
+				'img',
+				'input',
+				'link',
+				'meta',
+				'param',
+				'source',
+				'track',
+				'wbr',
+			].reduce((set, tag) => {
 				return set.add(tag.toLowerCase()).add(tag.toUpperCase()).add(tag);
 			}, new Set<string>());
 		}
 	}
 	public formatNode(tag: string, attrs: string, innerHTML: string) {
 		const addClosingSlash = this.addClosingSlash;
-		const closingSpace = (addClosingSlash && attrs && !attrs.endsWith(' ')) ? ' ' : '';
+		const closingSpace = addClosingSlash && attrs && !attrs.endsWith(' ') ? ' ' : '';
 		const closingSlash = addClosingSlash ? `${closingSpace}/` : '';
 		return this.isVoidElement(tag.toLowerCase()) ? `<${tag}${attrs}${closingSlash}>` : `<${tag}${attrs}>${innerHTML}</${tag}>`;
 	}
