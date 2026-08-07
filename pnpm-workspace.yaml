@@ -1,3 +1,4 @@
 packages:
-  - 'test'
-  - 'test/assets/packages/*'
+  - 'tests'
+  - 'packages/*'
+  - 'benchmark'

@@ -1,4 +1,4 @@
-import node_html_parser from '@test/last-release';
+import node_html_parser from '@bench/last-release';
 import benchmark from 'htmlparser-benchmark';
 
 export default function nhpLast() {

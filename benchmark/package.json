@@ -1,0 +1,10 @@
+{
+	"private": true,
+	"scripts": {
+		"benchmark": "node ./compare.mjs"
+	},
+	"dependencies": {
+		"@bench/root": "workspace:../",
+		"@bench/last-release": "npm:node-html-parser@latest"
+	}
+}

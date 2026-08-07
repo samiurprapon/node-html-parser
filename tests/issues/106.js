@@ -8,7 +8,7 @@ describe.skip('Memory leak', function () {
 		let i = 0;
 		const cat = {};
 		// const cat = {};
-		const content = fs.readFileSync(__dirname + '/../assets/html/view-source_https___epicentrk.ua_shop_kirpich-ogneupornyy_.html', 'utf-8');
+		const content = fs.readFileSync(__dirname + '/../../assets/html/view-source_https___epicentrk.ua_shop_kirpich-ogneupornyy_.html', 'utf-8');
 		while (++i < 10000) {
 			let root = parse(content);
 			const parent = Math.random().toString();

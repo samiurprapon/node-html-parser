@@ -3,6 +3,6 @@
  */
 const path = require('path');
 
-const target = process.env.TEST_TARGET === 'dist' || process.env.CI ? 'dist/index.cjs' : 'src';
+const target = process.env.TEST_TARGET === 'dist' || process.env.CI ? 'dist/index.cjs' : 'parser';
 
-module.exports = require(`../../../../${target}`);
+module.exports = require(`../../${target}`);

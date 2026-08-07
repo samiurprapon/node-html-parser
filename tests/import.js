@@ -6,14 +6,14 @@ describe(`Module Import`, function () {
 
   it(`ESM project can import and use named exports`, () => {
     execSync('node index.ts', {
-      cwd: path.resolve(__dirname, '../assets/packages/esm'),
+      cwd: path.resolve(__dirname, '../packages/esm'),
       stdio: "pipe"
     }).toString().should.eql('parse succeeded\n')
   });
 
   it(`CommonJS project can import and use named exports`, () => {
     execSync('node -r ts-node/register index.ts', {
-      cwd: path.resolve(__dirname, '../assets/packages/cjs'),
+      cwd: path.resolve(__dirname, '../packages/cjs'),
       stdio: "pipe"
     }).toString().should.eql('parse succeeded\n')
   });

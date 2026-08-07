@@ -24,4 +24,9 @@ async function main() {
 	await nhpLast();
 }
 
-main();
+main()
+	.catch((err) => {
+		console.error('benchmark failed:', err);
+		process.exitCode = 1;
+	})
+	.finally(() => process.exit(process.exitCode));

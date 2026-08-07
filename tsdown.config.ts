@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-	entry: ['src/index.ts'],
+	entry: ['parser/index.ts'],
 	format: ['cjs', 'esm', 'umd'],
 	globalName: 'nodeHTMLParser',
 	target: 'es6',

@@ -1,4 +1,4 @@
-import node_html_parser from '@test/root';
+import node_html_parser from '@bench/root';
 import benchmark from 'htmlparser-benchmark';
 
 // const { parse } = node_html_parser;
