@@ -10,7 +10,7 @@ export default defineConfig({
 		mixedExports: false,
 	},
 	clean: true,
-	dts: true,
+	dts: false,
 	sourcemap: false,
 	minify: {
 		compress: {

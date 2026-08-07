@@ -1,6 +1,6 @@
 {
 	"name": "node-html-parser",
-	"version": "9.0.0",
+	"version": "9.0.1",
 	"description": "A very fast HTML parser, generating a simplified DOM, with basic element query support.",
 	"packageManager": "pnpm@11.6.0",
 	"main": "dist/index.cjs",
@@ -14,8 +14,8 @@
 		}
 	},
 	"scripts": {
-		"compile": "tsdown",
-		"build": "pnpm run lint && tsdown",
+		"compile": "tsdown && tsc --emitDeclarationOnly --outDir dist",
+		"build": "npm run lint && npm run compile",
 		"watch": "tsdown --watch",
 		"lint": "biome ci ./parser ./tests ./benchmark",
 		"lint:fix": "biome check --write ./parser ./tests ./benchmark",
