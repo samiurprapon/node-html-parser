@@ -1,0 +1,9 @@
+{
+	"private": true,
+	"dependencies": {
+		"@test/test-6113": "npm:node-html-parser@6.1.13",
+		"@test/test-531": "npm:node-html-parser@5.3.1",
+		"@test/test-target": "workspace:../packages/wrapper",
+		"@test/root": "workspace:../"
+	}
+}

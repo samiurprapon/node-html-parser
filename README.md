@@ -1,42 +1,63 @@
-# Fast HTML Parser [![NPM version](https://badge.fury.io/js/node-html-parser.png)](http://badge.fury.io/js/node-html-parser) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Ftaoqf%2Fnode-html-parser%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/taoqf/node-html-parser/goto?ref=main)
+# Node HTML Parser [![NPM version](https://badge.fury.io/js/node-html-parser.png)](http://badge.fury.io/js/node-html-parser) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Ftaoqf%2Fnode-html-parser%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/taoqf%2Fnode-html-parser/goto?ref=main)
 
-Fast HTML Parser is a _very fast_ HTML parser. Which will generate a simplified
-DOM tree, with element query support.
+> A very fast HTML parser that builds a simplified DOM tree with CSS selector support.
 
-Per the design, it intends to parse massive HTML files in lowest price, thus the
-performance is the top priority.  For this reason, some malformatted HTML may not
+Fast HTML Parser is a _very fast_ HTML parser. It generates a simplified DOM
+tree, with element query support.
+
+Per the design, it intends to parse massive HTML files at the lowest cost, thus
+performance is the top priority. For this reason, some malformatted HTML may not
 be able to parse correctly, but most usual errors are covered (eg. HTML4 style
 no closing `<td>` etc).
 
-## Install
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Performance](#performance)
+- [Parsing Options](#parsing-options)
+- [API Reference](#api-reference)
+  - [HTMLElement Properties](#htmlelement-properties)
+    - [Identity & structure](#identity--structure)
+    - [Text & content](#text--content)
+    - [Attributes](#attributes)
+    - [Serialization](#serialization)
+    - [Traversal](#traversal)
+    - [Source & metadata](#source--metadata)
+  - [HTMLElement Methods](#htmlelement-methods)
+    - [Querying](#querying)
+    - [DOM insertion](#dom-insertion)
+    - [Attribute methods](#attribute-methods)
+    - [classList methods](#classlist-methods)
+    - [Tree mutation](#tree-mutation)
+    - [Serialization & misc](#serialization--misc)
+  - [Node](#node)
+  - [TextNode](#textnode)
+  - [CommentNode](#commentnode)
+  - [DOMTokenList](#domtokenlist)
+- [Recipes](#recipes)
+- [Types](#types)
+
+## Features
+
+- **Fast** — designed to parse massive HTML files with performance as the top priority. See [Performance](#performance).
+- **Simplified DOM tree** with full parent/child/sibling traversal.
+- **CSS3 selector queries** via `querySelector`, `querySelectorAll`, `matches`, and `closest`.
+- **DOM mutation API** — `append`, `prepend`, `before`, `after`, `setAttribute`, `classList`, `replaceWith`, and more.
+- **Tolerant of malformed HTML** — covers most common errors (e.g. HTML4-style unclosed `<td>`).
+- **Configurable parsing** — void tags, comment retention, block-text elements, and tag-nesting fixes.
+- **TypeScript support** — ships type definitions (minimum TypeScript `^4.1.2`).
+
+## Installation
 
 ```shell
 npm install --save node-html-parser
 ```
 
-> Note: when using Fast HTML Parser in a Typescript project the minimum Typescript version supported is `^4.1.2`.
+> Note: when using Node HTML Parser in a Typescript project the minimum Typescript version supported is `^4.1.2`.
 
-## Performance
-
--- 2026-06-20
-
-```shell
-html-parser     :12.5662 ms/file ± 10.0834
-htmljs-parser   :0.233045 ms/file ± 0.525111
-html-dom-parser :1.07375 ms/file ± 0.811077
-html5parser     :0.824501 ms/file ± 0.540651
-cheerio         :3.27444 ms/file ± 2.06027
-parse5          :2.43857 ms/file ± 1.56153
-htmlparser2     :0.712490 ms/file ± 0.364630
-htmlparser      :10.5275 ms/file ± 82.6013
-high5           :1.64003 ms/file ± 0.993116
-node-html-parser:0.972389 ms/file ± 0.570578
-node-html-parser (last release):0.961381 ms/file ± 0.553054
-```
-
-Tested with [htmlparser-benchmark](https://github.com/AndreasMadsen/htmlparser-benchmark).
-
-## Usage
+## Quick Start
 
 ```ts
 import { parse } from 'node-html-parser';
@@ -62,8 +83,10 @@ console.log(root.querySelector('#list'));
 console.log(root.toString());
 // <ul id="list"><li>Hello World</li></ul>
 root.set_content('<li>Hello World</li>');
-root.toString();	// <li>Hello World</li>
+root.toString(); // <li>Hello World</li>
 ```
+
+CommonJS:
 
 ```js
 var HTMLParser = require('node-html-parser');
@@ -71,7 +94,27 @@ var HTMLParser = require('node-html-parser');
 var root = HTMLParser.parse('<ul id="list"><li>Hello World</li></ul>');
 ```
 
-## Global Methods
+## Performance
+
+-- 2026-06-20
+
+```shell
+html-parser     :12.5662 ms/file ± 10.0834
+htmljs-parser   :0.233045 ms/file ± 0.525111
+html-dom-parser :1.07375 ms/file ± 0.811077
+html5parser     :0.824501 ms/file ± 0.540651
+cheerio         :3.27444 ms/file ± 2.06027
+parse5          :2.43857 ms/file ± 1.56153
+htmlparser2     :0.712490 ms/file ± 0.364630
+htmlparser      :10.5275 ms/file ± 82.6013
+high5           :1.64003 ms/file ± 0.993116
+node-html-parser:0.972389 ms/file ± 0.570578
+node-html-parser (last release):0.961381 ms/file ± 0.553054
+```
+
+Tested with [htmlparser-benchmark](https://github.com/AndreasMadsen/htmlparser-benchmark).
+
+## Parsing Options
 
 ### parse(data[, options])
 
@@ -80,77 +123,75 @@ Parse the data provided, wrap the result in a new node, and return the root of t
 - **data**, data to parse
 - **options**, parse options
 
-  ```js
-  {
-    lowerCaseTagName: false,		// convert tag name to lower case (hurts performance heavily)
-    comment: false,           		// retrieve comments (hurts performance slightly)
-    fixNestedATags: false,    		// fix invalid nested <a> HTML tags 
-    parseNoneClosedTags: false, 	// close none closed HTML tags instead of removing them 
-    preserveTagNesting: false,		// preserve invalid HTML nesting instead of auto-closing tags (e.g. <p><p>bar</p></p>)
-    voidTag: {
-      tags: ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'],	// optional and case insensitive, default value is ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']
-      closingSlash: true	// optional, default false. void tag serialisation, add a final slash <br/>
-    },
-    blockTextElements: {
-      script: true,		// keep text content when parsing
-      noscript: true,		// keep text content when parsing
-      style: true,		// keep text content when parsing
-      pre: true			// keep text content when parsing
-    },
-    closeAllByClosing: false  // Close all non-closed tags when containing element closes
-  }
-  ```
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `lowerCaseTagName` | `boolean` | `false` | Convert tag names to lower case (hurts performance heavily) |
+| `comment` | `boolean` | `false` | Retrieve comment nodes (hurts performance slightly) |
+| `fixNestedATags` | `boolean` | `false` | Fix invalid nested `<a>` HTML tags |
+| `parseNoneClosedTags` | `boolean` | `false` | Close non-closed HTML tags instead of removing them |
+| `preserveTagNesting` | `boolean` | `false` | Preserve invalid HTML nesting instead of auto-closing tags (e.g. `<p><p>bar</p></p>`) |
+| `blockTextElements` | `{ [tag: string]: boolean }` | `{ script: true, noscript: true, style: true, pre: true }` | Tags whose text content is kept as raw text when parsing |
+| `voidTag.tags` | `string[]` | `['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']` | Void (self-closing) element tags. Optional and case insensitive |
+| `voidTag.closingSlash` | `boolean` | `false` | Void tag serialisation: add a final slash, e.g. `<br/>` |
+| `closeAllByClosing` | `boolean` | `false` | Close all non-closed tags when the containing element closes |
 
 ### valid(data[, options])
 
-Parse the data provided, return true if the given data is valid, and return false if not.
+Parse the data provided and return `true` if it is well-formed (all tags properly closed/matched), `false` otherwise.
 
-## Class
+## API Reference
+
+The parser produces a tree of nodes. `HTMLElement` is the primary node type; `TextNode` and `CommentNode` extend the abstract [`Node`](#node) base class. The class diagram below shows how they relate.
 
 ```mermaid
 classDiagram
 direction TB
 class HTMLElement{
-	this trimRight()
-	this removeWhitespace()
-	Node[] querySelectorAll(string selector)
-	Node querySelector(string selector)
-	boolean matches(string selector)
-	HTMLElement[] getElementsByTagName(string tagName)
-	Node closest(string selector)
-	Node appendChild(Node node)
-	this insertAdjacentHTML('beforebegin' | 'afterbegin' | 'beforeend' | 'afterend' where, string html)
-	this setAttribute(string key, string value)
-	this setAttributes(Record string, string attrs)
-	this removeAttribute(string key)
-	string getAttribute(string key)
-	this exchangeChild(Node oldNode, Node newNode)
-	this removeChild(Node node)
-	string toString()
-	this set_content(string content)
-	this set_content(Node content)
-	this set_content(Node[] content)
-	this remove()
-	this replaceWith((string | Node)[] ...nodes)
-	ClassList classList
-	HTMLElement clone()
-	HTMLElement getElementById(string id)
-	string text
-	string rawText
-	string tagName
-	string structuredText
-	string structure
-	Node firstChild
-	Node lastChild
-	Node nextSibling
-	HTMLElement nextElementSibling
-	Node previousSibling
-	HTMLElement previousElementSibling
-	string innerHTML
-	string outerHTML
-	string textContent
-	Record<string, string> attributes
-	[number, number] range
+ this trimRight()
+ this removeWhitespace()
+ Node[] querySelectorAll(string selector)
+ Node querySelector(string selector)
+ boolean matches(string selector)
+ HTMLElement[] getElementsByTagName(string tagName)
+ Node closest(string selector)
+ Node appendChild(Node node)
+ void prepend(NodeInsertable[] nodes)
+ void append(NodeInsertable[] nodes)
+ void before(NodeInsertable[] nodes)
+ void after(NodeInsertable[] nodes)
+ this insertAdjacentHTML('beforebegin' | 'afterbegin' | 'beforeend' | 'afterend' where, string html)
+ this setAttribute(string key, string value)
+ this setAttributes(Record string, string attrs)
+ this removeAttribute(string key)
+ string getAttribute(string key)
+ boolean hasAttribute(string key)
+ this exchangeChild(Node oldNode, Node newNode)
+ this removeChild(Node node)
+ string toString()
+ this set_content(string content)
+ this set_content(Node content)
+ this set_content(Node[] content)
+ this remove()
+ this replaceWith((string | Node)[] ...nodes)
+ DOMTokenList classList
+ HTMLElement clone()
+ HTMLElement getElementById(string id)
+ string text
+ string rawText
+ string tagName
+ string structuredText
+ string structure
+ Node firstChild
+ Node lastChild
+ Node nextSibling
+ HTMLElement nextElementSibling
+ Node previousSibling
+ HTMLElement previousElementSibling
+ string innerHTML
+ string outerHTML
+ string textContent
+ Record<string, string> attributes
+ [number, number] range
 }
 class Node{
  <<abstract>>
@@ -161,7 +202,7 @@ class Node{
  string innerText
  string textContent
 }
-class ClassList{
+class DOMTokenList{
  add(string c)
  replace(string c1, string c2)
  remove(string c)
@@ -169,6 +210,7 @@ class ClassList{
  boolean contains(string c)
  number length
  string[] value
+ values()
  string toString()
 }
 class CommentNode{
@@ -184,229 +226,275 @@ class TextNode{
  string text
  boolean isWhitespace
 }
-Node --|> HTMLElement
-Node --|> CommentNode
-Node --|> TextNode
-Node ..> ClassList
+HTMLElement --|> Node
+CommentNode --|> Node
+TextNode --|> Node
+Node ..> DOMTokenList
 ```
 
-## HTMLElement Methods
-
-### trimRight()
-
-Trim element from right (in block) after seeing pattern in a TextNode.
-
-### removeWhitespace()
-
-Remove whitespaces in this sub tree.
-
-### querySelectorAll(selector)
-
-Query CSS selector to find matching nodes.
-
-Note: Full range of CSS3 selectors supported since v3.0.0.
-
-### querySelector(selector)
-
-Query CSS Selector to find matching node. `null` if not found.
-
-### matches(selector)
-
-Tests whether the node matches a given CSS selector.
-
-### getElementsByTagName(tagName)
-
-Get all elements with the specified tagName.
-
-Note: Use * for all elements.
-
-### closest(selector)
-
-Query closest element by css selector. `null` if not found.
-
-### before(...nodesOrStrings)
-
-Insert one or multiple nodes or text before the current element. Does not work on root.
-
-### after(...nodesOrStrings)
-
-Insert one or multiple nodes or text after the current element. Does not work on root.
-
-### prepend(...nodesOrStrings)
-
-Insert one or multiple nodes or text to the first position of an element's child nodes.
-
-### append(...nodesOrStrings)
-
-Insert one or multiple nodes or text to the last position of an element's child nodes.
-This is similar to appendChild, but accepts arbitrarily many nodes and converts strings to text nodes.
-
-### appendChild(node)
-
-Append a node to an element's child nodes.
-
-### insertAdjacentHTML(where, html)
-
-Parses the specified text as HTML and inserts the resulting nodes into the DOM tree at a specified position.
-
-### setAttribute(key: string, value: string)
-
-Set `value` to `key` attribute.
-
-### setAttributes(attrs: Record<string, string>)
-
-Set attributes of the element.
-
-### removeAttribute(key: string)
-
-Remove `key` attribute.
-
-### getAttribute(key: string)
-
-Get `key` attribute. `undefined` if not set.
-
-### exchangeChild(oldNode: Node, newNode: Node)
-
-Exchanges given child with new child.
-
-### removeChild(node: Node)
-
-Remove child node.
-
-### toString()
-
-Same as [outerHTML](#htmlelementouterhtml)
-
-### set_content(content: string | Node | Node[])
-
-Set content. **Notice**: Do not set content of the **root** node.
-
-### remove()
-
-Remove current element.
-
-### replaceWith(...nodes: (string | Node)[])
-
-Replace current element with other node(s).
-
-### classList
-
-#### classList.add
-
-Add class name.
-
-#### classList.replace(old: string, new: string)
-
-Replace class name with another one.
-
-#### classList.remove()
-
-Remove class name.
-
-#### classList.toggle(className: string):void
-
-Toggle class. Remove it if it is already included, otherwise add.
-
-#### classList.contains(className: string): boolean
-
-Returns true if the classname is already in the classList.
-
-#### classList.value
-
-Get class names.
-
-#### clone()
-
-Clone a node.
-
-#### getElementById(id: string): HTMLElement | null
-
-Get element by it's ID.
+Class reference:
+
+- [`HTMLElement`](#htmlelement-properties) — the main element node ([properties](#htmlelement-properties) · [methods](#htmlelement-methods)).
+- [`Node`](#node) — abstract base class.
+- [`TextNode`](#textnode) — a run of text.
+- [`CommentNode`](#commentnode) — an HTML comment.
+- [`DOMTokenList`](#domtokenlist) — the `classList` property's type.
 
 ## HTMLElement Properties
 
-### text
+### Identity & structure
 
-Get unescaped text value of current node and its children. Like `innerText`.
-(slow for the first time)
+| Property | Type | Summary |
+| --- | --- | --- |
+| `tagName` | `string` | Tag name (uppercase). Get or set. |
+| `localName` | `string` | Lowercase tag name (mirrors the DOM `Element.localName`). |
+| `id` | `string` | The `id` attribute. Get or set (setter → `setAttribute`). |
+| `classNames` | `string` | Space-joined class string, e.g. `'foo bar'` (string form of `classList`). |
+| `classList` | `DOMTokenList` | Token list for the `class` attribute. See [classList methods](#classlist-methods). |
+| `isVoidElement` | `boolean` | `true` if the tag is a configured void element (per `voidTag.tags`). |
+| `structure` | `string` | DOM structure overview. |
 
-### rawText
+### Text & content
 
-Get escaped (as-is) text value of current node and its children. May have
-`&amp;` in it. (fast)
+| Property | Type | Summary |
+| --- | --- | --- |
+| `text` | `string` | Unescaped text of this node and its descendants (like `innerText`). Slow first time. |
+| `rawText` | `string` | Escaped (as-is) text; may contain `&amp;`. Fast. |
+| `textContent` | `string` | Get or set text content (more efficient than `set_content`). |
+| `innerText` | `string` | Escaped text of this node and its descendants. _(inherited from `Node`)_ |
+| `structuredText` | `string` | Block-aware text of this subtree. |
 
-### tagName
+### Attributes
 
-Get or Set tag name of HTMLElement. Note that the returned value is an uppercase string.
+| Property | Type | Summary |
+| --- | --- | --- |
+| `attributes` | `Record<string, string>` | All attributes (decoded). **Do not mutate the returned value.** |
+| `attrs` | `Record<string, string>` | Decoded attributes with lowercased keys. Internal helper — prefer `getAttribute` / `attributes`. |
+| `rawAttributes` | `Record<string, string>` | Raw (not decoded) attributes, so `&amp;` stays literal. |
 
-### structuredText
+### Serialization
 
-Get structured Text.
+| Property | Type | Summary |
+| --- | --- | --- |
+| `innerHTML` | `string` | Get or set inner HTML. |
+| `outerHTML` | `string` | Serialized outer HTML. |
 
-### structure
+### Traversal
 
-Get DOM structure.
+| Property | Type | Summary |
+| --- | --- | --- |
+| `childNodes` | `Node[]` | All child nodes (text, comment, element). |
+| `children` | `HTMLElement[]` | Child nodes of type `HTMLElement`. |
+| `childElementCount` | `number` | Number of element children. |
+| `firstChild` | `Node \| undefined` | First child node. `undefined` if none. |
+| `lastChild` | `Node \| undefined` | Last child node. `undefined` if none. |
+| `firstElementChild` | `HTMLElement \| undefined` | First child element. `undefined` if none. |
+| `lastElementChild` | `HTMLElement \| undefined` | Last child element. `undefined` if none. |
+| `nextSibling` | `Node \| null` | Next sibling node. |
+| `previousSibling` | `Node \| null` | Previous sibling node. |
+| `nextElementSibling` | `HTMLElement \| null` | Next sibling element. |
+| `previousElementSibling` | `HTMLElement \| null` | Previous sibling element. |
+| `parentNode` | `HTMLElement \| null` | Parent element. _(inherited from `Node`)_ |
 
-### childNodes
+### Source & metadata
 
-Get all child nodes. A child node can be a TextNode, a CommentNode and a HTMLElement.
+| Property | Type | Summary |
+| --- | --- | --- |
+| `nodeType` | `NodeType` | Always `NodeType.ELEMENT_NODE` (`1`). _(inherited from `Node`)_ |
+| `range` | `[number, number]` | Source `[start, end]` offsets. _(inherited)_ |
 
-### children
+## HTMLElement Methods
 
-Get all child elements, so all child nodes of type HTMLELement.
+Where `NodeInsertable = Node | string` and `InsertPosition = 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend'`.
 
-### firstChild
+### Querying
 
-Get first child node of the wrapper node added by `parse()`. `undefined` if the node has no children.
+| Method | Returns | Summary |
+| --- | --- | --- |
+| `querySelectorAll(selector)` | `HTMLElement[]` | All matches for a CSS selector (full CSS3 since v3.0.0). |
+| `querySelector(selector)` | `HTMLElement \| null` | First match for a CSS selector. |
+| `matches(selector)` | `boolean` | Whether this element matches a selector. |
+| `closest(selector)` | `HTMLElement \| null` | Nearest ancestor (incl. self) matching a selector. |
+| `getElementsByTagName(tagName)` | `HTMLElement[]` | All descendants with the given tag (`*` = all). |
+| `getElementById(id)` | `HTMLElement \| null` | First descendant with the given id. |
 
-### lastChild
+### DOM insertion
 
-Get last child node of the wrapper node added by `parse()`. `undefined` if the node has no children.
+| Method | Returns | Summary |
+| --- | --- | --- |
+| `append(...nodes)` | `void` | Append node(s)/text to end of children (variadic; strings → `TextNode`). |
+| `prepend(...nodes)` | `void` | Prepend node(s)/text to start of children. |
+| `appendChild(node)` | the node | Append a single node to children. |
+| `insertAdjacentHTML(where, html)` | `this` | Insert parsed HTML relative to this element. |
+| `before(...nodes)` | `void` | Insert node(s)/text before this element (not on root). |
+| `after(...nodes)` | `void` | Insert node(s)/text after this element (not on root). |
 
-### firstElementChild
+### Attribute methods
 
-Get the first child of type HTMLElement. `undefined` if none exists.
+| Method | Returns | Summary |
+| --- | --- | --- |
+| `setAttribute(key, value)` | `this` | Set an attribute. |
+| `setAttributes(attrs)` | `this` | Set multiple attributes. |
+| `getAttribute(key)` | `string \| undefined` | Get an attribute. |
+| `hasAttribute(key)` | `boolean` | Whether an attribute is set. |
+| `removeAttribute(key)` | `this` | Remove an attribute. |
 
-### lastElementChild
+### classList methods
 
-Get the first child of type HTMLElement. `undefined` if none exists.
+The `classList` property is a [`DOMTokenList`](#domtokenlist) — use `add`, `replace`, `remove`, `toggle`, `contains`, and `value` on it. See [DOMTokenList](#domtokenlist).
 
-### childElementCount
+### Tree mutation
 
-Get the number of children that are of type HTMLElement.
+| Method | Returns | Summary |
+| --- | --- | --- |
+| `remove()` | `this` | Remove this element from its parent. |
+| `replaceWith(...nodes)` | `this` | Replace this element with node(s)/text. |
+| `exchangeChild(oldNode, newNode)` | `this` | Swap one child for another. |
+| `removeChild(node)` | `this` | Remove a child node. |
 
-### innerHTML
+### Serialization & misc
 
-Set or Get innerHTML.
+| Method | Returns | Summary |
+| --- | --- | --- |
+| `toString()` | `string` | Same as `outerHTML`. |
+| `set_content(content, options?)` | `this` | Replace this element's children. **Not for the root node.** |
+| `clone()` | `HTMLElement` | Deep clone of this element. |
+| `trimRight(pattern)` | `this` | Trim trailing text matching a pattern. |
+| `removeWhitespace()` | `this` | Remove whitespace in this subtree. |
 
-### outerHTML
+## Node
 
-Get outerHTML.
+`Node` is the abstract base class for every node in the tree (`HTMLElement`, `TextNode`, and `CommentNode` all extend it). It is exported but not instantiated directly.
 
-### nextSibling
+| Member | Signature | Description |
+| --- | --- | --- |
+| `childNodes` | `Node[]` | Child nodes of this node. |
+| `parentNode` | `HTMLElement \| null` | Parent element, or `null` for the root. |
+| `range` | `readonly [number, number]` | Source `[start, end]` offsets; `[-1, -1]` if unknown. |
+| `nodeType` | `NodeType` | Node type (see [Types](#types)). Abstract — implemented by subclasses. |
+| `text` | `string` | Unescaped text. Abstract — implemented by subclasses. |
+| `rawText` | `string` | Raw (escaped) text. Abstract — implemented by subclasses. |
+| `innerText` | `string` | Returns the raw text. |
+| `textContent` | `string` | Get or set the decoded text content. |
+| `toString()` | `string` | Serialized representation. Abstract. |
+| `clone()` | `Node` | Deep clone of this node. Abstract. |
+| `remove()` | `this` | Remove this node from its parent. |
 
-Returns a reference to the next child node of the current element's parent. `null` if not found.
+## TextNode
 
-### nextElementSibling
+A node representing a run of text inside an element. `nodeType` is `NodeType.TEXT_NODE` (`3`).
 
-Returns a reference to the next child element of the current element's parent. `null` if not found.
+| Member | Signature | Description |
+| --- | --- | --- |
+| `rawText` | `string` | Get or set the raw (escaped) text. Setting it invalidates the trimmed caches. |
+| `text` | `string` | Unescaped text value (`decodeHTML(rawText)`). |
+| `trimmedRawText` | `string` | Raw text with surrounding whitespace trimmed (preserving a single leading/trailing non-breaking space). |
+| `trimmedText` | `string` | Same trim applied to the decoded `text`. |
+| `isWhitespace` | `boolean` | `true` if the node contains only whitespace. |
+| `nodeType` | `NodeType` | `NodeType.TEXT_NODE` (`3`). |
+| `toString()` | `string` | Returns the raw text. |
+| `clone()` | `TextNode` | Clone this text node. |
 
-### previousSibling
+## CommentNode
 
-Returns a reference to the previous child node of the current element's parent. `null` if not found.
+A node representing an HTML comment. `nodeType` is `NodeType.COMMENT_NODE` (`8`). Its `rawTagName` is `'!--'`, which lets CSS selectors match comments by the `!--` tag name.
 
-### previousElementSibling
+| Member | Signature | Description |
+| --- | --- | --- |
+| `rawText` | `string` | The comment's inner text. |
+| `text` | `string` | The comment's inner text (not decoded). |
+| `rawTagName` | `string` | `'!--` — used for selector matching. |
+| `nodeType` | `NodeType` | `NodeType.COMMENT_NODE` (`8`). |
+| `toString()` | `string` | Returns `<!--` + rawText + `-->`. |
+| `clone()` | `CommentNode` | Clone this comment node. |
 
-Returns a reference to the previous child element of the current element's parent. `null` if not found.
+## DOMTokenList
 
-### textContent
+`DOMTokenList` is the type of an [`HTMLElement`](#htmlelement-properties)'s `classList` property. It is **not exported** — access it via `element.classList`. Unlike the DOM spec, `toggle` takes no `force` argument and returns `void`, and `replace` always succeeds.
 
-Get or Set textContent of current element, more efficient than [set_content](#htmlelementset_contentcontent-string--node--node).
+| Member | Signature | Description |
+| --- | --- | --- |
+| `add(c)` | `(c: string): void` | Add a token. |
+| `replace(c1, c2)` | `(c1: string, c2: string): void` | Replace `c1` with `c2`. |
+| `remove(c)` | `(c: string): void` | Remove a token. |
+| `toggle(c)` | `(c: string): void` | Add the token if absent, remove it if present. |
+| `contains(c)` | `(c: string): boolean` | `true` if the token is present. |
+| `length` | `number` | Number of tokens. |
+| `value` | `string[]` | The tokens as an array. |
+| `values()` | `IterableIterator<string>` | Iterate over the tokens. |
+| `toString()` | `string` | Space-joined tokens (e.g. `'foo bar'`). |
 
-### attributes
+## Recipes
 
-Get all attributes of current element. **Notice: do not try to change the returned value.**
+### Extract all links
 
-### range
+```js
+import { parse } from 'node-html-parser';
 
-Corresponding source code start and end indexes (ie [ 0, 40 ])
+const root = parse(htmlString);
+for (const a of root.querySelectorAll('a')) {
+  console.log(a.getAttribute('href'), '→', a.text);
+}
+```
+
+### Modify attributes, then serialize
+
+```js
+const root = parse('<div class="main">yay</div>');
+const div = root.querySelector('div.main');
+div.set_content('updated content');
+div.setAttribute('data-id', '42');
+console.log(root.toString());
+// <div class="main" data-id="42">updated content</div>
+```
+
+### Parse with options
+
+```js
+// Keep <pre>/<script>/<style> contents as raw text and retain comments
+const root = parse(html, {
+  blockTextElements: { script: true, noscript: true, style: true, pre: true },
+  comment: true,
+});
+
+// Auto-close non-closed tags instead of removing them
+parse('<p>a<b>b</p><p>c</p>', { parseNoneClosedTags: true });
+```
+
+### Work with classes
+
+```js
+const div = parse('<div class="foo bar"></div>').firstChild;
+div.classList.value; // ['foo', 'bar']
+div.classNames; // 'foo bar'
+div.classList.toggle('bar');
+div.classNames; // 'foo'
+div.classList.contains('foo'); // true
+```
+
+### Block-aware text extraction
+
+```js
+parse('<span>o<p>a</p><p>b</p>c</span>').structuredText; // 'o\na\nb\nc'
+```
+
+## Types
+
+The package exports `parse` (default and named), `valid`, `HTMLElement`, `Node`, `TextNode`, `CommentNode`, `NodeType`, and the `Options` type. `DOMTokenList` is not exported — access it via an element's `classList` property.
+
+| Type | Description |
+| --- | --- |
+| [`Options`](#parsing-options) | Parse options accepted by `parse()` and `valid()`. See [Parsing Options](#parsing-options). |
+| `NodeType` | Enum mirroring the DOM `Node.nodeType` values: `ELEMENT_NODE = 1`, `TEXT_NODE = 3`, `COMMENT_NODE = 8`. |
+| `InsertPosition` | `'beforebegin' \| 'afterbegin' \| 'beforeend' \| 'afterend'` — used by `insertAdjacentHTML`. |
+| `NodeInsertable` | `Node \| string` — accepted by `append`, `prepend`, `before`, `after`. |
+
+## Contributors
+
+Thanks to everyone who has contributed to `node-html-parser`.
+
+<a href="https://github.com/taoqf/node-html-parser/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=taoqf/node-html-parser" alt="node-html-parser contributors" />
+</a>
+
+Contributions are welcome — see [open issues](https://github.com/taoqf/node-html-parser/issues) and [pull requests](https://github.com/taoqf/node-html-parser/pulls).

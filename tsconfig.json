@@ -1,6 +1,6 @@
 {
 	"include": [
-		"./src/"
+		"./parser/"
 	],
 	"compilerOptions": {
 		"module": "commonjs",
@@ -9,7 +9,7 @@
 			"esnext",
 			"dom"
 		],
-		"rootDir": "./src/",
+		"rootDir": "./parser/",
 		"outDir": "./dist",
 		"noImplicitAny": true,
 		"noImplicitThis": true,

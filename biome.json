@@ -1,0 +1,89 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"files": {
+		"includes": ["parser/**", "*.ts", "*.js", "!tests", "!benchmark", "!packages"],
+		"ignoreUnknown": true
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 4,
+		"lineWidth": 140,
+		"lineEnding": "lf"
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"semicolons": "always",
+			"trailingCommas": "es5",
+			"jsxQuoteStyle": "double",
+			"arrowParentheses": "always"
+		}
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "none",
+			"correctness": {
+				"noConstantCondition": { "level": "warn" },
+				"noUnusedVariables": { "level": "warn" }
+			},
+			"suspicious": {
+				"noCatchAssign": "warn",
+				"noConsole": "off",
+				"noDebugger": "warn",
+				"noReturnAssign": "error",
+				"noSelfCompare": "error",
+				"noTemplateCurlyInString": "warn",
+				"noVar": "error",
+				"noWith": "error"
+			},
+			"complexity": {
+				"noArguments": "error",
+				"noCommaOperator": "error",
+				"noImplicitCoercions": "error",
+				"noUselessCatch": "error",
+				"noUselessLoneBlockStatements": "error",
+				"noUselessRename": "error",
+				"noUselessReturn": "error",
+				"noUselessStringConcat": "error",
+				"noUselessTernary": "error",
+				"useArrowFunction": "warn",
+				"useNumericLiterals": "error"
+			},
+			"style": {
+				"noInferrableTypes": {
+					"level": "warn"
+				},
+				"noYodaExpression": "error",
+				"noUselessElse": "warn",
+				"useBlockStatements": "error",
+				"useCollapsedElseIf": "error",
+				"useConst": "error",
+				"useObjectSpread": "error",
+				"useSingleVarDeclarator": "error",
+				"useSpreadOverApply": "error",
+				"useTemplate": "error",
+				"useThrowOnlyError": "error"
+			},
+			"security": { "noGlobalEval": "error" },
+			"performance": {},
+			"a11y": {}
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": {
+					"level": "on",
+					"options": {
+						"groups": [[":NODE:"], ":BLANK_LINE:", [":PACKAGE:"], ":BLANK_LINE:", [":PATH:"]]
+					}
+				}
+			}
+		}
+	},
+	"overrides": [{ "includes": ["tests/**", "benchmark/**", "packages/**"], "formatter": { "enabled": false } }]
+}

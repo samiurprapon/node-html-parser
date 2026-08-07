@@ -1,2 +1,2 @@
-require: blanket,should,spec,ts-node/register
+require: should,ts-node/register
 recursive: true

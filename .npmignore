@@ -1,6 +1,9 @@
 node_modules/
 npm-debug.log
-src/
-test/
+parser/
+tests/
+benchmark/
+assets/
+packages/
 .travis.yml
 tsconfig.json
